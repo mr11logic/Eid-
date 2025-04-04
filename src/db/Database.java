@@ -10,7 +10,8 @@ public class Database {
 
     public static void add(Entity e) {
         Entity copy = e.copy();
-        copy.id = nextId++;
+        copy.id = nextId;
+        e.id = nextId++;
         entities.add(copy);
     }
 
