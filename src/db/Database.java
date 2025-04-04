@@ -9,27 +9,31 @@ public class Database {
     private Database() {}
 
     public static void add(Entity e) {
+        Entity copy = e.copy();
+        copy.id = nextId;
         e.id = nextId++;
-        entities.add(e);
+        entities.add(copy);
     }
 
     public static Entity get(int id) throws EntityNotFoundException {
         for (Entity e : entities) {
             if (e.id == id) {
-                return e;
+                return e.copy();
             }
         }
         throw new EntityNotFoundException(id);
     }
 
     public static void delete(int id) throws EntityNotFoundException {
-        Entity toRemove = get(id);
-        entities.remove(toRemove);
+        boolean removed = entities.removeIf(e -> e.id == id);
+        if (!removed) {
+            throw new EntityNotFoundException(id);
+        }
     }
 
-    public static void update(Entity e) throws EntityNotFoundException {
-        Entity existing = get(e.id);
-        int index = entities.indexOf(existing);
-        entities.set(index, e);
+public static void update(Entity e) throws EntityNotFoundException {
+    delete(e.id);
+    Entity updatedCopy = e.copy();
+    entities.add(updatedCopy);
     }
 }
