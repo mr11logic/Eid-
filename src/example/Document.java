@@ -4,7 +4,7 @@ import db.Trackable;
 import java.util.Date;
 
 public class Document extends Entity implements Trackable {
-    private String content;
+    public String content;
     private Date creationDate;
     private Date lastModificationDate;
 
