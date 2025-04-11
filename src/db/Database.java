@@ -1,7 +1,9 @@
 package db;
 import db.exception.EntityNotFoundException;
 import db.exception.InvalidEntityException;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Database {
@@ -12,6 +14,7 @@ public class Database {
     public static void setValidators(HashMap<Integer, Validator> validators) {
         Database.validators = validators;
     }
+
 
     public static void add(Entity e) throws InvalidEntityException {
         Validator validator = validators.get(e.getEntityCode());
@@ -40,12 +43,33 @@ public class Database {
         throw new EntityNotFoundException(id);
     }
     public static void update(Entity e) throws InvalidEntityException {
+        if(e == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
         Validator validator = validators.get(e.getEntityCode());
         if (validator != null) {
             validator.validate(e);
         }
+        if (e instanceof Trackable) {
+            Trackable trackableE = (Trackable) e;
+            Date currentDate = new Date();
+            trackableE.setLastModificationDate(currentDate);
+        }
+        Entity existingOriginal = null;
+        int index = -1;
+        for(int i = 0; i < entities.size(); i++) {
+            Entity current = entities.get(i);
+            if(current != null && current.id == e.id) {
+                existingOriginal = current;
+                index = i;
+                break;
+            }
+        }
+        if(index == -1) {
+            throw new EntityNotFoundException(e.id);
+        }
         Entity existing = get(e.id);
-        entities.set(entities.indexOf(existing), e.copy());
+        entities.set(index, e.copy());
     }
     public static void registerValidator(int entityCode, Validator validator) {
         if(validators.containsKey(entityCode)){
